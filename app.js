@@ -22,13 +22,20 @@
   // ---------- Map ----------
   var map = L.map('map', {
     zoomControl: true,
+    attributionControl: false,
+    maxZoom: 21,
     tap: false // avoids a known double-tap issue on iOS with older Leaflet tap handling
   }).setView([20, 0], 2);
 
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
+    maxNativeZoom: 19, // OSM tiles stop at 19; zoom 20–21 just enlarges them
+    maxZoom: 21,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
+  L.control.attribution({ position: 'topright' }).addTo(map);
+
+  // Shared with treasure.js
+  window.RouteLab = { map: map };
 
   var meIcon = L.divIcon({
     className: 'me-marker',
@@ -120,6 +127,16 @@
 
     setStatus('live', acc <= 30 ? 'Live' : 'Live · low accuracy');
     clearMessage();
+
+    // Let the treasure hunt (and anything else) react to the new position.
+    var evt;
+    try {
+      evt = new CustomEvent('routelab:position', { detail: { latlng: latlng, accuracy: acc } });
+    } catch (e) { // very old browsers
+      evt = document.createEvent('CustomEvent');
+      evt.initCustomEvent('routelab:position', false, false, { latlng: latlng, accuracy: acc });
+    }
+    window.dispatchEvent(evt);
   }
 
   function onError(err) {
@@ -220,6 +237,16 @@
     el.recenterBtn.hidden = true;
     if (lastPos) map.setView(lastPos, Math.max(map.getZoom(), 16), { animate: true });
   });
+
+  // ---------- Test mode: open the page with ?test and tap the map to "walk" ----------
+  if (/[?&]test\b/.test(window.location.search)) {
+    setStatus('idle', 'Test mode');
+    showMessage('Test mode: tap the map to move yourself. Zoom in first.', true);
+    map.on('click', function (e) {
+      onPosition({ coords: { latitude: e.latlng.lat, longitude: e.latlng.lng, accuracy: 5 } });
+      setStatus('live', 'Test mode');
+    });
+  }
 
   // Keep the map sized correctly when the phone rotates or browser bars collapse.
   window.addEventListener('resize', function () { map.invalidateSize(); });

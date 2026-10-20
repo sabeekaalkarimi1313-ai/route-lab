@@ -25,6 +25,21 @@
   </header>
 
   <section id="panel" class="panel" aria-live="polite">
+    <div id="hunt" class="hunt" hidden>
+      <div class="hunt-compass" aria-hidden="true">
+        <svg id="huntArrow" class="hunt-arrow" viewBox="0 0 24 24" width="30" height="30">
+          <path d="M12 2 L19 20 L12 16 L5 20 Z" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="hunt-info">
+        <span class="hunt-dist" id="huntDist">…</span>
+        <span class="hunt-hint" id="huntHint">Tap Start to begin the hunt.</span>
+      </div>
+      <div class="hunt-side">
+        <span class="hunt-score" title="Treasures found">💰 <span id="foundCount">0</span></span>
+        <button id="rehideBtn" class="hunt-rehide" type="button" aria-label="Hide a new treasure">↻ New</button>
+      </div>
+    </div>
     <div class="readout">
       <div class="cell">
         <span class="label">Latitude</span>
@@ -46,9 +61,20 @@
     </div>
   </section>
 
+  <div id="celebrate" class="celebrate" role="dialog" aria-modal="true" aria-labelledby="celebrateTitle" hidden>
+    <div id="confetti" class="confetti" aria-hidden="true"></div>
+    <div class="celebrate-card">
+      <div class="celebrate-emoji" aria-hidden="true">💰</div>
+      <h2 id="celebrateTitle">Treasure found!</h2>
+      <p id="celebrateText"></p>
+      <button id="playAgainBtn" class="btn btn-primary" type="button">Hide another treasure</button>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
           crossorigin=""></script>
   <script src="./app.js"></script>
+  <script src="./treasure.js"></script>
 </body>
 </html>
